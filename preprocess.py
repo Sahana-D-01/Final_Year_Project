@@ -26,7 +26,7 @@ parser.add_argument('--ngpu', help='Number of GPUs across which to run in parall
 parser.add_argument('--batch_size', help='Single GPU Face detection batch size', default=16, type=int)
 parser.add_argument("--speaker_root", help="Root folder of Speaker", required=True)
 parser.add_argument("--resize_factor", help="Resize the frames before face detection", default=1, type=int)
-parser.add_argument("--speaker", help="Helps in preprocessing", required=True, choices=["chem", "chess", "hs", "dl", "eh"])
+parser.add_argument("--speaker", help="Helps in preprocessing", required=False, choices=["chem", "chess", "hs", "dl", "eh","s1"])
 
 
 args = parser.parse_args()
@@ -39,12 +39,16 @@ template2 = 'ffmpeg -hide_banner -loglevel panic -threads 1 -y -i {} -async 1 -a
 
 
 def crop_frame(frame, args):
-	if args.speaker == "chem" or args.speaker == "hs":
+	# if args.speaker == "chem" or args.speaker == "hs":
+	# 	return frame
+	# elif args.speaker == "chess":
+	# 	return frame[270:460, 770:1130]
+	# elif args.speaker == "dl" or args.speaker == "eh":
+	# 	return  frame[int(frame.shape[0]*3/4):, int(frame.shape[1]*3/4): ]
+	# else:
+	# print(args.speaker)
+	if args.speaker == "s1":
 		return frame
-	elif args.speaker == "chess":
-		return frame[270:460, 770:1130]
-	elif args.speaker == "dl" or args.speaker == "eh":
-		return  frame[int(frame.shape[0]*3/4):, int(frame.shape[1]*3/4): ]
 	else:
 		raise ValueError("Unknown speaker!")
 		exit()
@@ -71,10 +75,10 @@ def process_video_file(vfile, args, gpu_id):
 	wavpath = path.join(fulldir, 'audio.wav')
 	specpath = path.join(fulldir, 'mels.npz')
 
-	if args.speaker == "hs" or args.speaker == "eh":
-		command = template2.format(vfile, wavpath)
-	else:
-		command = template.format(vfile, hp.sample_rate, wavpath)
+	# if args.speaker == "hs" or args.speaker == "eh":
+	command = template2.format(vfile, wavpath)
+	# else:
+		# command = template.format(vfile, hp.sample_rate, wavpath)
 
 
 	subprocess.call(command, shell=True)
@@ -103,7 +107,7 @@ def process_audio_file(vfile, args, gpu_id):
 	specpath = path.join(fulldir, 'mels.npz')
 
 	
-	wav = audio.load_wav(wavpath, hp.sample_rate)
+	wav = audio.load_wav(wavpath)
 	spec = audio.melspectrogram(wav, hp)
 	lspec = audio.linearspectrogram(wav, hp)
 	np.savez_compressed(specpath, spec=spec, lspec=lspec)
@@ -121,6 +125,7 @@ def mp_handler(job):
 		
 def main(args):
 	print('Started processing for {} with {} GPUs'.format(args.speaker_root, args.ngpu))
+	print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
 	filelist = glob(path.join(args.speaker_root, 'intervals/*/*.mp4'))
 

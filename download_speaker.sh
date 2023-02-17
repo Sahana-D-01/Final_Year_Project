@@ -1,14 +1,16 @@
 #!/bin/bash
 speaker=$(basename $1)
-mkdir -p "$1/videos/"
-echo "Downloading Train set of $speaker"
-youtube-dl -f best -a $1/train.txt -o $1"/videos/%(id)s.%(ext)s"
-echo "Downloading Val set of $speaker"
-youtube-dl -f best -a $1/val.txt -o $1"/videos/%(id)s.%(ext)s"
-echo "Downloading Test set of $speaker"
-youtube-dl -f best -a $1/test.txt -o $1"/videos/%(id)s.%(ext)s"
+#echo $1
+#echo $(basename $1)
+#mkdir -p "$1/videos/"
+#echo "Downloading Train set of $speaker"
+#youtube-dl -f best -a $1/train.txt -o $1"/videos/%(id)s.%(ext)s"
+#echo "Downloading Val set of $speaker"
+#youtube-dl -f best -a $1/val.txt -o $1"/videos/%(id)s.%(ext)s"
+#echo "Downloading Test set of $speaker"
+#youtube-dl -f best -a $1/test.txt -o $1"/videos/%(id)s.%(ext)s"
 
-FILES=$1/videos/*
+FILES=$1/*
 DST_DIR=$1/intervals
 mkdir -p $DST_DIR
 

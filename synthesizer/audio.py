@@ -6,7 +6,7 @@ from scipy import signal
 from scipy.io import wavfile
 
 
-def load_wav(path, sr):
+def load_wav(path, sr=16000):
     return librosa.core.load(path, sr=sr)[0]
 
 def save_wav(wav, path, sr):
@@ -49,7 +49,7 @@ def get_hop_size(hparams):
     return hop_size
 
 def linearspectrogram(wav, hparams):
-    D = _stft(preemphasis(wav, hparams.preemphasis, hparams.preemphasize), hparams)
+    D = _stft(preemphasis(wav, 0.97, True), hparams)
     S = _amp_to_db(np.abs(D), hparams) - hparams.ref_level_db
     
     if hparams.signal_normalization:
@@ -57,7 +57,7 @@ def linearspectrogram(wav, hparams):
     return S
 
 def melspectrogram(wav, hparams):
-    D = _stft(preemphasis(wav, hparams.preemphasis, hparams.preemphasize), hparams)
+    D = _stft(preemphasis(wav, 0.97, True), hparams)
     S = _amp_to_db(_linear_to_mel(np.abs(D), hparams), hparams) - hparams.ref_level_db
     
     if hparams.signal_normalization:
@@ -77,9 +77,9 @@ def inv_linear_spectrogram(linear_spectrogram, hparams):
         processor = _lws_processor(hparams)
         D = processor.run_lws(S.astype(np.float64).T ** hparams.power)
         y = processor.istft(D).astype(np.float32)
-        return inv_preemphasis(y, hparams.preemphasis, hparams.preemphasize)
+        return inv_preemphasis(y,0.97,True)
     else:
-        return inv_preemphasis(_griffin_lim(S ** hparams.power, hparams), hparams.preemphasis, hparams.preemphasize)
+        return inv_preemphasis(_griffin_lim(S ** hparams.power, hparams), 0.97, True)
 
 def inv_mel_spectrogram(mel_spectrogram, hparams):
     """Converts mel spectrogram to waveform using librosa"""
@@ -94,9 +94,9 @@ def inv_mel_spectrogram(mel_spectrogram, hparams):
         processor = _lws_processor(hparams)
         D = processor.run_lws(S.astype(np.float64).T ** hparams.power)
         y = processor.istft(D).astype(np.float32)
-        return inv_preemphasis(y, hparams.preemphasis, hparams.preemphasize)
+        return inv_preemphasis(y, 0.97, True)
     else:
-        return inv_preemphasis(_griffin_lim(S ** hparams.power, hparams), hparams.preemphasis, hparams.preemphasize)
+        return inv_preemphasis(_griffin_lim(S ** hparams.power, hparams), 0.97, True)
 
 def _lws_processor(hparams):
     import lws

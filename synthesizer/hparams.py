@@ -1,4 +1,7 @@
-from tensorflow.contrib.training import HParams
+# from tensorflow.contrib.training import HParams
+# from tensorboard.plugins.hparams.api import HParam
+from hparams import HParams
+# import tensorboard.plugins.hparams as HParams
 from glob import glob
 import os, pickle
 
