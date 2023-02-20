@@ -14,6 +14,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 import argparse, os, cv2, traceback, subprocess
 from tqdm import tqdm
+import tensorflow as tf
 from glob import glob
 from synthesizer import audio
 from synthesizer.hparams import hparams as hp
@@ -108,7 +109,7 @@ def process_audio_file(vfile, args, gpu_id):
 
 	
 	wav = audio.load_wav(wavpath)
-	spec = audio.melspectrogram(wav, hp)
+	spec = audio.melspectrogram(wav, hp, False)
 	lspec = audio.linearspectrogram(wav, hp)
 	np.savez_compressed(specpath, spec=spec, lspec=lspec)
 
@@ -117,7 +118,7 @@ def mp_handler(job):
 	vfile, args, gpu_id = job
 	try:
 		process_video_file(vfile, args, gpu_id)
-		process_audio_file(vfile, args, gpu_id)
+		# process_audio_file(vfile, args, gpu_id)
 	except KeyboardInterrupt:
 		exit(0)
 	except:
