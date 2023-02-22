@@ -14,6 +14,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 import argparse, os, cv2, traceback, subprocess
 from tqdm import tqdm
+import tensorflow as tf
 from glob import glob
 from synthesizer import audio
 from synthesizer.hparams import hparams as hp
@@ -55,7 +56,6 @@ def crop_frame(frame, args):
 
 def process_video_file(vfile, args, gpu_id):
 	video_stream = cv2.VideoCapture(vfile)
-	
 	frames = []
 	while 1:
 		still_reading, frame = video_stream.read()
@@ -96,7 +96,7 @@ def process_video_file(vfile, args, gpu_id):
 
 			cv2.imwrite(path.join(fulldir, '{}.jpg'.format(i)), f[0])
 
-
+"""
 def process_audio_file(vfile, args, gpu_id):
 	fulldir = vfile.replace('/intervals/', '/preprocessed/')
 	fulldir = fulldir[:fulldir.rfind('.')] # ignore extension
@@ -108,16 +108,17 @@ def process_audio_file(vfile, args, gpu_id):
 
 	
 	wav = audio.load_wav(wavpath)
-	spec = audio.melspectrogram(wav, hp)
+	spec = audio.melspectrogram(wav, hp, False)
 	lspec = audio.linearspectrogram(wav, hp)
 	np.savez_compressed(specpath, spec=spec, lspec=lspec)
+"""
 
 	
 def mp_handler(job):
 	vfile, args, gpu_id = job
 	try:
 		process_video_file(vfile, args, gpu_id)
-		process_audio_file(vfile, args, gpu_id)
+		# process_audio_file(vfile, args, gpu_id)
 	except KeyboardInterrupt:
 		exit(0)
 	except:
