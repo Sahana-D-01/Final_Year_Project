@@ -1,5 +1,5 @@
 audioread==2.1.8
-h5py==2.9.0
+h5py==2.10.0
 hparams
 inflect
 librosa
@@ -8,7 +8,7 @@ Markdown==3.1.1
 matplotlib==3.1.1
 multiprocess
 numba==0.48
-numpy==1.16.4
+#numpy==1.16.4
 # opencv-python==4.1.1.26
 pesq==0.0.1
 # PyQt5
@@ -21,7 +21,7 @@ SoundFile==0.10.2
 # tensorboard==1.13.1
 tensorboardX==2.0
 # tensorflow-estimator==1.13.0
-tensorflow
+tensorflow==2.4
 tqdm
 umap-learn
 Unidecode
