@@ -31,12 +31,23 @@ parser.add_argument("--speaker", help="Helps in preprocessing", required=False, 
 
 
 args = parser.parse_args()
-
+#These arguments allow users to customize various parameters when running the program, such as the number of GPUs to use, 
+#the batch size for face detection, the root folder of the speaker, the resize factor for frames, and the speaker name for preprocessing. 
+#By providing these arguments, users can tailor the program to their specific needs and requirements
 fa = [face_detection.FaceAlignment(face_detection.LandmarksType._2D, flip_input=False, 
-									device='cuda:{}'.format(id)) for id in range(args.ngpu)]
-
+								device='cuda:{}'.format(id)) for id in range(args.ngpu)]
+#Initialise s3fd model
 template = 'ffmpeg -loglevel panic -y -i {} -ar {} -f wav {}'
 template2 = 'ffmpeg -hide_banner -loglevel panic -threads 1 -y -i {} -async 1 -ac 1 -vn -acodec pcm_s16le -ar 16000 {}'
+
+#The first template, ffmpeg -loglevel panic -y -i {} -ar {} -f wav {}, is used to convert an input audio file to a WAV format.
+#     -loglevel panic sets the log level to "panic", which means that no log output will be displayed.
+#     -y tells FFmpeg to overwrite the output file without asking for confirmation.
+#     -i {} specifies the input file to be processed.
+#     -ar {} sets the audio sample rate of the output file to a specified value.
+#     -f wav sets the output format to WAV.
+
+#The third line of code defines another string template2 which is another command-line instruction for ffmpeg. This command uses the -i option to specify the input file, -async 1 option to enable asynchronous processing, -ac option to specify the number of audio channels, -vn option to disable video recording, -acodec option to specify the audio codec (to reduce the size of digital audio files), and -ar option to specify the audio sample rate. This command is used for extracting audio from video files.
 
 
 def crop_frame(frame, args):
@@ -65,6 +76,12 @@ def process_video_file(vfile, args, gpu_id):
 		frame = crop_frame(frame, args)
 		frame = cv2.resize(frame, (frame.shape[1]//args.resize_factor, frame.shape[0]//args.resize_factor))
 		frames.append(frame)
+# This line of code resizes the input frame of the video to a smaller size, based on the value of the resize_factor argument passed to the function.
+# Specifically, the resize() function from the OpenCV library is used, which takes two arguments: the frame to be resized and a tuple (width, height) 
+#specifying the new dimensions of the frame.
+# In this case, the new dimensions are calculated by dividing the original width and height of the frame by the resize_factor value. 
+#For example, if resize_factor=2, then the new width and height will be half of the original dimensions, effectively reducing the size of the frame to one-fourth of the original size.
+
 	
 	fulldir = vfile.replace('/intervals/', '/preprocessed/')
 	fulldir = fulldir[:fulldir.rfind('.')] # ignore extension
